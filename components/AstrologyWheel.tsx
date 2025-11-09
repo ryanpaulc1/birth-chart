@@ -64,7 +64,7 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
   const svgRef = useRef<SVGSVGElement>(null);
   const wheelContainerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   // Extract planetary positions from API response
   const planetsList = planetsData?.data?.planet_position || [];
