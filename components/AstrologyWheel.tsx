@@ -70,6 +70,7 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
   const lastTouchY = useRef<number | null>(null);
   const accumulatedRotation = useRef(0);
   const isMobileRef = useRef(false);
+  const touchAnimationFrame = useRef<number | undefined>(undefined);
 
   // Extract planetary positions from API response
   const planetsList = planetsData?.data?.planet_position || [];
@@ -141,14 +142,26 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       // Each 100px of touch movement = 30 degrees of rotation
       const rotationDelta = (deltaY / 100) * 30;
       accumulatedRotation.current += rotationDelta;
-      setRotation(accumulatedRotation.current);
 
       lastTouchY.current = currentY;
+
+      // Use requestAnimationFrame for smooth updates
+      if (touchAnimationFrame.current === undefined) {
+        touchAnimationFrame.current = requestAnimationFrame(() => {
+          setRotation(accumulatedRotation.current);
+          touchAnimationFrame.current = undefined;
+        });
+      }
     };
 
     const handleTouchEnd = () => {
       touchStartY.current = null;
       lastTouchY.current = null;
+      // Cancel any pending animation frame
+      if (touchAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(touchAnimationFrame.current);
+        touchAnimationFrame.current = undefined;
+      }
     };
 
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -159,6 +172,9 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
+      if (touchAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(touchAnimationFrame.current);
+      }
     };
   }, [drawerOpen]);
 

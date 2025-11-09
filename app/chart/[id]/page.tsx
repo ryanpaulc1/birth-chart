@@ -178,21 +178,21 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
       }`}>
         {/* Gradient overlay to fade wheel */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
           style={{
             background: 'linear-gradient(to top, #181818 0%, #181818 40%, transparent 100%)',
           }}
         />
 
         {/* Content */}
-        <div className="relative max-w-4xl mx-auto px-4 pb-8">
+        <div className="relative max-w-4xl mx-auto px-4 pb-4">
           {/* Instruction text */}
-          <p className="text-center text-white/80 mb-6 font-['Mabry_Mono_Pro',monospace] text-sm">
+          <p className="text-center text-white/80 mb-4 font-['Mabry_Mono_Pro',monospace] text-sm">
             Scroll to SPIN the WHEEL
           </p>
 
           {/* Action buttons */}
-          <div className="flex flex-row gap-4 justify-center mb-6">
+          <div className="flex flex-row gap-4 justify-center mb-3">
             <button className="bg-black text-cream px-8 py-4 rounded-lg font-medium text-lg hover:bg-black/80 transition-colors">
               buy a print
             </button>
