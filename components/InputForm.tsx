@@ -113,7 +113,8 @@ export default function InputForm() {
           required
           value={formData.date}
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-cream transition-colors [color-scheme:dark]"
+          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-cream transition-colors [color-scheme:dark] max-w-full"
+          style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
         />
       </div>
 
@@ -131,7 +132,8 @@ export default function InputForm() {
           required
           value={formData.time}
           onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-cream transition-colors [color-scheme:dark]"
+          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-cream transition-colors [color-scheme:dark] max-w-full"
+          style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
         />
       </div>
 

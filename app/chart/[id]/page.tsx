@@ -55,6 +55,16 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
     }
   }, []);
 
+  // Clear displayed sign immediately on mobile when drawer closes
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile && !selectedSign) {
+      // On mobile, when drawer closes, immediately clear displayed content
+      setDisplayedSign(null);
+      setContentVisible(false);
+    }
+  }, [selectedSign]);
+
   // Handle sign selection with fade out/in transition
   useEffect(() => {
     if (selectedSign) {
@@ -182,7 +192,7 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
           </p>
 
           {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+          <div className="flex flex-row gap-4 justify-center mb-6">
             <button className="bg-black text-cream px-8 py-4 rounded-lg font-medium text-lg hover:bg-black/80 transition-colors">
               buy a print
             </button>
