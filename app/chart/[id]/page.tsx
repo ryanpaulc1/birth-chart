@@ -40,17 +40,19 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
-      // Prevent scrolling on mobile
+      // Prevent scrolling and browser gestures on mobile
       document.body.style.overflow = 'hidden';
       document.body.style.height = '100vh';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
+      document.body.style.touchAction = 'none';
 
       return () => {
         document.body.style.overflow = '';
         document.body.style.height = '';
         document.body.style.position = '';
         document.body.style.width = '';
+        document.body.style.touchAction = '';
       };
     }
   }, []);
@@ -226,6 +228,7 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
         className={`fixed top-0 right-0 h-full w-full lg:w-[400px] bg-[#181818] z-30 transition-opacity duration-500 ${
           selectedSign ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ touchAction: 'pan-y' }}
       >
         {/* Vertical Divider - hidden on mobile */}
         <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[1px] bg-[#4e5e89]" />

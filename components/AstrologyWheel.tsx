@@ -136,6 +136,9 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       // Don't handle touches when drawer is open on mobile
       if (isAnimatingRef.current || drawerOpen || touchStartY.current === null || lastTouchY.current === null) return;
 
+      // Prevent pull-to-refresh and other default behaviors
+      e.preventDefault();
+
       const currentY = e.touches[0].clientY;
       const deltaY = lastTouchY.current - currentY; // Inverted: swipe down = negative, swipe up = positive
 
@@ -165,7 +168,7 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
     };
 
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
 
     return () => {

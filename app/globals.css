@@ -46,6 +46,8 @@ body {
   font-family: var(--font-instrument-serif);
   background-color: #181818;
   color: white;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
