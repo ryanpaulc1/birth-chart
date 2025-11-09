@@ -17,20 +17,20 @@ const ZODIAC_SIGNS = [
 
 const HOUSE_NUMBERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
-// Zodiac symbol images from Figma
+// Zodiac symbol images
 const ZODIAC_IMAGES: { [key: string]: string } = {
-  "Aries": "http://localhost:3845/assets/c0b0debcdad632e643497ec033be3051539e5f1d.png",
-  "Taurus": "http://localhost:3845/assets/a88263177568354a300de33fae44af7891ba015b.png",
-  "Gemini": "http://localhost:3845/assets/e7381df59de666db7ce67e549ea56c3687f8d52a.png",
-  "Cancer": "http://localhost:3845/assets/766f65eb9a29c0c067fa45abc1cf751b8f9cdc9e.png",
-  "Leo": "http://localhost:3845/assets/0997d6c5fd312e5e5d9bb66d6d3ae87c2cdd7f6f.png",
-  "Virgo": "http://localhost:3845/assets/22b57b95e392a6210492dbf76e32207d01f8c7fc.png",
-  "Libra": "http://localhost:3845/assets/df47b7e620fe285432c098ff1135531644898513.png",
-  "Scorpio": "http://localhost:3845/assets/b2d7d1d1627e962bca4686689942f0f2ab9f9e71.png",
-  "Sagittarius": "http://localhost:3845/assets/2092b31603961024063ca519a81f6c8743d2a438.png",
-  "Capricorn": "http://localhost:3845/assets/edd9a1a682b601f919f6b19df4095b0a2bddb787.png",
-  "Aquarius": "http://localhost:3845/assets/dfb0546a30bef054a7adff34e55df2bee8602ffb.png",
-  "Pisces": "http://localhost:3845/assets/e1890d8c09b025743bc8bf48064d24f823b4f982.png"
+  "Aries": "/zodiac/Aries.png",
+  "Taurus": "/zodiac/Taurus.png",
+  "Gemini": "/zodiac/Gemini.png",
+  "Cancer": "/zodiac/Cancer.png",
+  "Leo": "/zodiac/Leo.png",
+  "Virgo": "/zodiac/Virgo.png",
+  "Libra": "/zodiac/Libra.png",
+  "Scorpio": "/zodiac/Scorpio.png",
+  "Sagittarius": "/zodiac/Sagittarius.png",
+  "Capricorn": "/zodiac/Capricorn.png",
+  "Aquarius": "/zodiac/Aquarius.png",
+  "Pisces": "/zodiac/Pisces.png"
 };
 
 // Planet symbol images (PNG exports from Figma)
