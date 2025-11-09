@@ -71,6 +71,9 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
   const accumulatedRotation = useRef(0);
   const isMobileRef = useRef(false);
   const touchAnimationFrame = useRef<number | undefined>(undefined);
+  const velocityTracker = useRef<Array<{ time: number; y: number }>>([]);
+  const momentumAnimationFrame = useRef<number | undefined>(undefined);
+  const velocity = useRef(0);
 
   // Extract planetary positions from API response
   const planetsList = planetsData?.data?.planet_position || [];
@@ -128,8 +131,17 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
     const handleTouchStart = (e: TouchEvent) => {
       // Don't handle touches when drawer is open on mobile
       if (isAnimatingRef.current || drawerOpen) return;
+
+      // Stop any ongoing momentum animation
+      if (momentumAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(momentumAnimationFrame.current);
+        momentumAnimationFrame.current = undefined;
+      }
+
       touchStartY.current = e.touches[0].clientY;
       lastTouchY.current = e.touches[0].clientY;
+      velocityTracker.current = [{ time: Date.now(), y: e.touches[0].clientY }];
+      velocity.current = 0;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -140,7 +152,14 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       e.preventDefault();
 
       const currentY = e.touches[0].clientY;
+      const currentTime = Date.now();
       const deltaY = lastTouchY.current - currentY; // Inverted: swipe down = negative, swipe up = positive
+
+      // Track velocity - keep last 5 positions for smoothing
+      velocityTracker.current.push({ time: currentTime, y: currentY });
+      if (velocityTracker.current.length > 5) {
+        velocityTracker.current.shift();
+      }
 
       // Each 100px of touch movement = 30 degrees of rotation
       const rotationDelta = (deltaY / 100) * 30;
@@ -160,11 +179,56 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
     const handleTouchEnd = () => {
       touchStartY.current = null;
       lastTouchY.current = null;
+
       // Cancel any pending animation frame
       if (touchAnimationFrame.current !== undefined) {
         cancelAnimationFrame(touchAnimationFrame.current);
         touchAnimationFrame.current = undefined;
       }
+
+      // Calculate velocity from recent touch movements
+      if (velocityTracker.current.length >= 2) {
+        const first = velocityTracker.current[0];
+        const last = velocityTracker.current[velocityTracker.current.length - 1];
+        const timeDiff = last.time - first.time;
+        const yDiff = first.y - last.y; // Inverted for correct direction
+
+        if (timeDiff > 0) {
+          // Calculate velocity in degrees per millisecond
+          const pixelsPerMs = yDiff / timeDiff;
+          velocity.current = (pixelsPerMs / 100) * 30; // Convert to degrees per ms
+
+          // Only apply momentum if velocity is significant
+          if (Math.abs(velocity.current) > 0.01) {
+            startMomentumAnimation();
+          }
+        }
+      }
+
+      velocityTracker.current = [];
+    };
+
+    const startMomentumAnimation = () => {
+      const deceleration = 0.95; // Friction factor (0-1, lower = more friction)
+      const minVelocity = 0.01; // Stop when velocity is very low
+
+      const animate = () => {
+        // Apply deceleration
+        velocity.current *= deceleration;
+
+        // Update rotation
+        accumulatedRotation.current += velocity.current * 16; // Approximate ms per frame
+        setRotation(accumulatedRotation.current);
+
+        // Continue animation if velocity is still significant
+        if (Math.abs(velocity.current) > minVelocity) {
+          momentumAnimationFrame.current = requestAnimationFrame(animate);
+        } else {
+          momentumAnimationFrame.current = undefined;
+        }
+      };
+
+      momentumAnimationFrame.current = requestAnimationFrame(animate);
     };
 
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -177,6 +241,9 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       document.removeEventListener('touchend', handleTouchEnd);
       if (touchAnimationFrame.current !== undefined) {
         cancelAnimationFrame(touchAnimationFrame.current);
+      }
+      if (momentumAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(momentumAnimationFrame.current);
       }
     };
   }, [drawerOpen]);
