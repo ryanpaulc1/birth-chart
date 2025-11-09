@@ -8,6 +8,7 @@ interface AstrologyWheelProps {
   risingSign: string;
   planets?: any;
   onSignClick?: (sign: string) => void;
+  drawerOpen?: boolean;
 }
 
 const ZODIAC_SIGNS = [
@@ -50,7 +51,7 @@ const PLANET_IMAGES: { [key: string]: string } = {
   "Asc": "/planets/Asc.png"
 };
 
-export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets: planetsData, onSignClick }: AstrologyWheelProps) {
+export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets: planetsData, onSignClick, drawerOpen }: AstrologyWheelProps) {
   const size = 600;
   const center = size / 2;
   const outerRadius = 280;
@@ -65,6 +66,10 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
   const wheelContainerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
   const animationFrameRef = useRef<number | undefined>(undefined);
+  const touchStartY = useRef<number | null>(null);
+  const lastTouchY = useRef<number | null>(null);
+  const accumulatedRotation = useRef(0);
+  const isMobileRef = useRef(false);
 
   // Extract planetary positions from API response
   const planetsList = planetsData?.data?.planet_position || [];
@@ -84,11 +89,20 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
     "Ascendant": "Asc"
   };
 
-  // Scroll handler to rotate wheel (only when not animating from click)
+  // Detect mobile device
+  useEffect(() => {
+    isMobileRef.current = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobileRef.current) {
+      // Initialize accumulated rotation on mobile
+      accumulatedRotation.current = 0;
+    }
+  }, []);
+
+  // Scroll handler to rotate wheel (only when not animating from click, desktop only)
   useEffect(() => {
     const handleScroll = () => {
-      // Don't update rotation from scroll if we're animating from a click
-      if (isAnimatingRef.current) return;
+      // Don't update rotation from scroll if we're animating from a click or on mobile
+      if (isAnimatingRef.current || isMobileRef.current) return;
 
       // Rotate based on scroll position
       // Each 100px of scroll = 30 degrees of rotation
@@ -105,6 +119,48 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       }
     };
   }, []);
+
+  // Touch handlers for mobile
+  useEffect(() => {
+    if (!isMobileRef.current) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      // Don't handle touches when drawer is open on mobile
+      if (isAnimatingRef.current || drawerOpen) return;
+      touchStartY.current = e.touches[0].clientY;
+      lastTouchY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // Don't handle touches when drawer is open on mobile
+      if (isAnimatingRef.current || drawerOpen || touchStartY.current === null || lastTouchY.current === null) return;
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = lastTouchY.current - currentY; // Inverted: swipe down = negative, swipe up = positive
+
+      // Each 100px of touch movement = 30 degrees of rotation
+      const rotationDelta = (deltaY / 100) * 30;
+      accumulatedRotation.current += rotationDelta;
+      setRotation(accumulatedRotation.current);
+
+      lastTouchY.current = currentY;
+    };
+
+    const handleTouchEnd = () => {
+      touchStartY.current = null;
+      lastTouchY.current = null;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [drawerOpen]);
 
   // Click handler for zodiac signs - directly animate rotation
   const handleZodiacClick = (signIndex: number, signName: string) => {
@@ -162,11 +218,19 @@ export default function AstrologyWheel({ sunSign, moonSign, risingSign, planets:
       if (progress < 1) {
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        // Animation complete - sync scroll position to match rotation
+        // Animation complete
         isAnimatingRef.current = false;
-        const targetScroll = (targetRotation * 100) / 30;
-        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'auto' });
-        console.log(`Animation complete. Synced scroll to ${targetScroll}px`);
+
+        if (isMobileRef.current) {
+          // On mobile: update accumulated rotation to match target
+          accumulatedRotation.current = targetRotation;
+          console.log(`Animation complete. Updated accumulated rotation to ${targetRotation}°`);
+        } else {
+          // On desktop: sync scroll position to match rotation
+          const targetScroll = (targetRotation * 100) / 30;
+          window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'auto' });
+          console.log(`Animation complete. Synced scroll to ${targetScroll}px`);
+        }
       }
     };
 

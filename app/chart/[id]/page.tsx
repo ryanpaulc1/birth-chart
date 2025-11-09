@@ -36,6 +36,25 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
     }
   }, [resolvedParams.id]);
 
+  // Prevent scrolling on mobile to avoid address bar issues
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Prevent scrolling on mobile
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.height = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+      };
+    }
+  }, []);
+
   // Handle sign selection with fade out/in transition
   useEffect(() => {
     if (selectedSign) {
@@ -138,6 +157,7 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
             risingSign={risingSign}
             planets={planets}
             onSignClick={setSelectedSign}
+            drawerOpen={!!selectedSign}
           />
         </div>
       </div>
